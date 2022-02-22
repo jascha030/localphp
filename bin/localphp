@@ -1,0 +1,126 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+namespace Jascha030\Localphp\Bin;
+
+use DI\ContainerBuilder;
+use DI\DependencyException;
+use DI\NotFoundException;
+use Jascha030\Localphp\Console\Application\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use function DI\create;
+
+/**
+ * Find and require autoload.php.
+ */
+$loader = static function (): void {
+    foreach ([
+        dirname(__FILE__, 2) . '/vendor',
+        dirname(__FILE__, 4),
+        getenv('HOME') . '/.composer/vendor',
+    ] as $path) {
+        if (! file_exists($path . '/autoload.php')) {
+            require_once sprintf('%s/autoload.php', $path);
+
+            return;
+        }
+    }
+
+    throw new \RuntimeException('Could not find autoload.php');
+};
+
+/**
+ * Catch and write error to console in case autoloader was not found.
+ */
+try {
+    $loader();
+} catch (\RuntimeException $e) {
+    fwrite(STDOUT, $e->getMessage());
+
+    return 1;
+}
+
+/**
+ * Create ConsoleOutput to write to when we run in to errors.
+ */
+$output = new ConsoleOutput();
+
+/**
+ * Error handler function, writes the message to Console output and returns exit code.
+ *
+ * Can be used to return or use inside exit($error($msg)).
+ */
+$error = static function (string $message, int $code = Command::FAILURE) use ($output): int {
+    $output->writeln(sprintf('<error>%s</error>', $message));
+
+    return $code;
+};
+
+/**
+ * Container definitions.
+ *
+ * @see \Di\ContainerBuilder
+ * @see \DI\Container
+ * @see \DI\create()
+ * @see https://php-di.org/doc/php-definitions.html
+ */
+$definitions = [
+    'app'      => create(Application::class),
+    'commands' => [
+    ],
+];
+
+try {
+    /**
+     * Build Container.
+     *
+     * @see \DI\Container
+     * @see \Di\ContainerBuilder
+     */
+    $container = (new ContainerBuilder())
+        ->useAnnotations(false)
+        ->useAutowiring(false)
+        ->addDefinitions($definitions)
+        ->build();
+
+    /**
+     * Get Application.
+     *
+     * @var Application $app
+     */
+    $app = $container->get(Application::class);
+
+    /**
+     * Register commands.
+     */
+    if ($container->has('commands')) {
+        foreach ($container->get('commands') as $command) {
+            if (! is_subclass_of($command, Command::class)) {
+                exit($error("Invalid command: {$command}"));
+            }
+
+            if (is_string($command) && $container->has($command)) {
+                $command = $container->get($command);
+            }
+
+            $app->add(is_string($command)
+                ? new $command()
+                : $command);
+        }
+    }
+} catch (DependencyException|NotFoundException|\Exception $e) {
+    return $error($e->getMessage());
+}
+
+/**
+ * Finally, run Application.
+ */
+try {
+    return $app->run(new ArgvInput(), $output);
+} catch (Exception $e) {
+    return $error($e->getMessage());
+}
