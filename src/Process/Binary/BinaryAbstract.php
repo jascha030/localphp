@@ -9,12 +9,31 @@ use Symfony\Component\Process\Process;
 
 abstract class BinaryAbstract implements BinaryInterface
 {
+    private bool $outputAsString;
+
     public function __construct(private OutputInterface $output)
     {
+        $this->outputAsString = false;
     }
 
-    public function __invoke(?string $command = null, ?string $cwd = null): int
+    final public function stringOutputEnabled(): bool
     {
+        return $this->outputAsString;
+    }
+
+    final public function outputToString(bool $enabled): BinaryInterface
+    {
+        $this->outputAsString = $enabled;
+
+        return $this;
+    }
+
+    public function __invoke(?string $command = null, ?string $cwd = null, bool $silent = false): int|string
+    {
+        if ($this->outputAsString || $silent) {
+            return $this->run($command, $cwd)->{$this->returnMethod()}();
+        }
+
         $process = $this->start($command, $cwd);
 
         foreach ($process as $type => $item) {
@@ -31,12 +50,19 @@ abstract class BinaryAbstract implements BinaryInterface
 
     public function createProcess(?string $command = null, ?string $cwd = null): Process
     {
-        $command = $command ? "{$this->getPath()} {$command}" : $this->getPath();
+        $command = $command
+            ? "{$this->getPath()} {$command}"
+            : $this->getPath();
 
         return Process::fromShellCommandline($command, $cwd);
     }
 
-    private function start(string $command, ?string $cwd = null): \Generator
+    private function run(?string $command = null, ?string $cwd = null): Process
+    {
+        return $this->createProcess($command, $cwd)->mustRun();
+    }
+
+    private function start(?string $command = null, ?string $cwd = null): \Generator
     {
         $process = $this->createProcess($command, $cwd);
         $process->start();
@@ -55,5 +81,12 @@ abstract class BinaryAbstract implements BinaryInterface
                 ? sprintf('<error>%s</error>', $output)
                 : $output
         );
+    }
+
+    private function returnMethod(): string
+    {
+        return $this->outputAsString
+            ? 'getOutput'
+            : 'getExitCode';
     }
 }

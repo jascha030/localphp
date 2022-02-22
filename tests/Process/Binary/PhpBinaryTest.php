@@ -43,7 +43,7 @@ class PhpBinaryTest extends TestCase
      */
     public function testInvoke(BinaryInterface $binary): void
     {
-        $this->assertEquals(Command::SUCCESS, $binary('-v'));
+        $this->assertEquals(Command::SUCCESS, $binary('-v', silent: true));
     }
 
     /**

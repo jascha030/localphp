@@ -6,7 +6,6 @@ namespace Jascha030\Localphp\Process\Binary;
 
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 final class PhpBinary extends BinaryAbstract
 {
@@ -22,7 +21,7 @@ final class PhpBinary extends BinaryAbstract
      */
     public function getVersion(): string
     {
-        return $this->version ?? $this->version = $this->matchVersion($this->createProcess('-v'));
+        return $this->version ?? $this->version = $this->matchVersion();
     }
 
     public function getPath(): string
@@ -33,9 +32,9 @@ final class PhpBinary extends BinaryAbstract
     /**
      * @throws ProcessFailedException
      */
-    private function matchVersion(Process $process): string
+    private function matchVersion(): string
     {
-        $process->mustRun();
+        $process = $this->createProcess('-v')->mustRun();
 
         $match = preg_match(
             '/[Pp][Hh][Pp] (\d.\d.\d)/',
