@@ -5,6 +5,11 @@
       "Jascha030\\Localphp\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Jascha030\\Localphp\\Tests\\": "tests/"
+    }
+  },
   "authors": [
     {
       "name": "Jascha030",
@@ -21,5 +26,9 @@
     "roave/security-advisories": "dev-latest",
     "phpunit/phpunit": "^9.5",
     "friendsofphp/php-cs-fixer": "^3.6"
+  },
+  "scripts": {
+    "format": "php-cs-fixer fix --config=.php-cs-fixer.dist.php",
+    "phpunit": "phpunit --config=phpunit.xml"
   }
 }
