@@ -22,6 +22,6 @@ return [
     'commands.composer' => create(ComposerCommand::class)->constructor(get('local')),
     'commands'          => static fn (ContainerInterface $container): array          => [
         'run'      => $container->get('commands.run'),
-        'composer' => $container->get('commands.run'),
+        'composer' => $container->get('commands.composer'),
     ],
 ];
