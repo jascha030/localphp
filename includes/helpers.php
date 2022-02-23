@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 function definitions(): Generator
 {
     $dir   = __DIR__ . '/definitions';
-    $files = array_diff(['..', '.'], scandir($dir));
+    $files = array_diff(scandir($dir), ['..', '.']);
 
     foreach ($files as $file) {
         yield str_replace('.php', '', $file) => "{$dir}/{$file}";
