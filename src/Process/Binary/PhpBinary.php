@@ -18,7 +18,7 @@ final class PhpBinary extends BinaryAbstract
 
     public function __invoke(?string $command = null, ?string $cwd = null, bool $silent = false): int|string
     {
-        if (str_contains($command, 'composer')) {
+        if (str_starts_with($command, 'composer')) {
             $command = str_replace('composer', $this->composerPath, $command);
         }
 
