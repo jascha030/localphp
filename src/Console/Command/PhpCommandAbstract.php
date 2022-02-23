@@ -19,7 +19,7 @@ abstract class PhpCommandAbstract extends Command
         parent::__construct($name);
     }
 
-    abstract public function getCommandDescription(InputInterface $input, OutputInterface $output): string;
+    abstract public function getCommandDescription(): string;
 
     abstract public function do(InputInterface $input, OutputInterface $output): int;
 

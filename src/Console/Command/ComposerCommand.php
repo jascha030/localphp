@@ -29,4 +29,9 @@ final class ComposerCommand extends PhpCommandAbstract
             $input->getOption('silent') ?? false
         );
     }
+
+    public function getCommandDescription(): string
+    {
+        return 'Run `composer [subcommand]` with a specified php binary.';
+    }
 }
