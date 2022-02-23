@@ -59,7 +59,7 @@ abstract class PhpCommandAbstract extends Command
         return $binaries[$version];
     }
 
-    final protected function list(InputInterface $input, OutputInterface $output): int
+    final protected function list(OutputInterface $output): int
     {
         $versions = $this->localWPService->getAvailablePhpVersions();
 
@@ -78,7 +78,7 @@ abstract class PhpCommandAbstract extends Command
     final public function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('list')) {
-            return $this->list($input, $output);
+            return $this->list($output);
         }
 
         return $this->do($input, $output);
