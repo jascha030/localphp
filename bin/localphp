@@ -9,10 +9,14 @@ use DI\ContainerBuilder;
 use DI\DependencyException;
 use DI\NotFoundException;
 use Jascha030\Localphp\Console\Application\Application;
+use Jascha030\Localphp\Console\Command\ComposerCommand;
+use Jascha030\Localphp\Console\Command\RunCommand;
+use Jascha030\Localphp\Console\Command\UseCommand;
+use Jascha030\Localphp\LocalWPService;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use function DI\create;
+use function DI\get;
 
 /**
  * Find and require autoload.php.
@@ -23,7 +27,7 @@ $loader = static function (): void {
         dirname(__FILE__, 4),
         getenv('HOME') . '/.composer/vendor',
     ] as $path) {
-        if (! file_exists($path . '/autoload.php')) {
+        if (file_exists($path . '/autoload.php')) {
             require_once sprintf('%s/autoload.php', $path);
 
             return;
@@ -70,8 +74,15 @@ $error = static function (string $message, int $code = Command::FAILURE) use ($o
  */
 $definitions = [
     'app'      => create(Application::class),
+    'local'    => create(LocalWPService::class)->constructor('/Applications/Local.app', $output),
     'commands' => [
+        'run',
+        'composer',
+        'use',
     ],
+    'commands.run'      => create(RunCommand::class)->constructor(get('local')),
+    'commands.composer' => create(ComposerCommand::class)->constructor(get('local')),
+    'commands.use'      => create(UseCommand::class)->constructor(get('local')),
 ];
 
 try {
@@ -92,35 +103,34 @@ try {
      *
      * @var Application $app
      */
-    $app = $container->get(Application::class);
+    $app      = $container->get('app');
+    $commands = [];
 
     /**
      * Register commands.
      */
     if ($container->has('commands')) {
-        foreach ($container->get('commands') as $command) {
+        foreach ($container->get('commands') as $key) {
+            $command = $container->get("commands.{$key}");
+
             if (! is_subclass_of($command, Command::class)) {
                 exit($error("Invalid command: {$command}"));
             }
 
-            if (is_string($command) && $container->has($command)) {
-                $command = $container->get($command);
-            }
-
-            $app->add(is_string($command)
-                ? new $command()
-                : $command);
+            $commands[] = $command;
         }
     }
 } catch (DependencyException|NotFoundException|\Exception $e) {
     return $error($e->getMessage());
 }
 
+$app->addCommands($commands);
+
 /**
  * Finally, run Application.
  */
 try {
-    return $app->run(new ArgvInput(), $output);
-} catch (Exception $e) {
+    return $app->run(output: $output);
+} catch (\Exception $e) {
     return $error($e->getMessage());
 }

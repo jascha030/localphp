@@ -11,9 +11,27 @@ final class PhpBinary extends BinaryAbstract
 {
     private ?string $version;
 
-    public function __construct(private string $path, OutputInterface $output)
+    public function __construct(private string $path, OutputInterface $output, private string $composerPath)
     {
         parent::__construct($output);
+    }
+
+    public function __invoke(?string $command = null, ?string $cwd = null, bool $silent = false): int|string
+    {
+        if (str_starts_with($command, 'composer')) {
+            $command = str_replace('composer', $this->composerPath, $command);
+        }
+
+        return parent::__invoke($command, $cwd, $silent);
+    }
+
+    public static function sanitizeForRunFlag(string $subcommand): string
+    {
+        if (! str_ends_with($subcommand, ';')) {
+            $subcommand .= ';';
+        }
+
+        return sprintf(' -r "%s"', str_replace('"', '\"', $subcommand));
     }
 
     /**
