@@ -19,13 +19,14 @@ abstract class PhpCommandAbstract extends Command
         parent::__construct($name);
     }
 
-    abstract public function getCommandDescription(InputInterface $input, OutputInterface $output): string;
+    abstract public function getCommandDescription(): string;
 
     abstract public function do(InputInterface $input, OutputInterface $output): int;
 
     final public function configure(): void
     {
-        $this->addArgument('subcommand', InputArgument::OPTIONAL, 'The php command to execute.')
+        $this->setDescription($this->getCommandDescription())
+            ->addArgument('subcommand', InputArgument::OPTIONAL, 'The php command to execute.')
             ->addOption('use', 'u', InputOption::VALUE_REQUIRED, 'The php version to use.')
             ->addOption('list', 'l', InputOption::VALUE_NONE, 'List available versions')
             ->addOption('silent', 's', InputOption::VALUE_NONE, 'Don\'t write command output to console.')

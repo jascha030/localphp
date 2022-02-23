@@ -1,6 +1,9 @@
 {
   "name": "jascha030/localphp",
   "autoload": {
+    "files": [
+      "includes/helpers.php"
+    ],
     "psr-4": {
       "Jascha030\\Localphp\\": "src/"
     }

@@ -37,4 +37,9 @@ final class RunCommand extends PhpCommandAbstract
             $input->getOption('silent') ?? false
         );
     }
+
+    public function getCommandDescription(): string
+    {
+        return 'Equivalent of running `php -r [subcommand]` with a specified php binary.';
+    }
 }
