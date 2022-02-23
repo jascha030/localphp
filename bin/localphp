@@ -5,28 +5,25 @@ declare(strict_types=1);
 
 namespace Jascha030\Localphp\Bin;
 
-use DI\ContainerBuilder;
-use DI\DependencyException;
-use DI\NotFoundException;
-use Jascha030\Localphp\Console\Application\Application;
-use Jascha030\Localphp\Console\Command\ComposerCommand;
-use Jascha030\Localphp\Console\Command\RunCommand;
-use Jascha030\Localphp\Console\Command\UseCommand;
-use Jascha030\Localphp\LocalWPService;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use function DI\create;
-use function DI\get;
+use Exception;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
+use function Jascha030\Localphp\app;
+use function Jascha030\Localphp\fail;
+use function Jascha030\Localphp\output;
 
 /**
  * Find and require autoload.php.
  */
 $loader = static function (): void {
-    foreach ([
+    $paths = [
         dirname(__FILE__, 2) . '/vendor',
         dirname(__FILE__, 4),
         getenv('HOME') . '/.composer/vendor',
-    ] as $path) {
+    ];
+
+    foreach ($paths as $path) {
         if (file_exists($path . '/autoload.php')) {
             require_once sprintf('%s/autoload.php', $path);
 
@@ -34,7 +31,7 @@ $loader = static function (): void {
         }
     }
 
-    throw new \RuntimeException('Could not find autoload.php');
+    throw new RuntimeException('Could not find autoload.php');
 };
 
 /**
@@ -42,95 +39,15 @@ $loader = static function (): void {
  */
 try {
     $loader();
-} catch (\RuntimeException $e) {
+} catch (RuntimeException $e) {
     fwrite(STDOUT, $e->getMessage());
 
     return 1;
 }
 
-/**
- * Create ConsoleOutput to write to when we run in to errors.
- */
-$output = new ConsoleOutput();
-
-/**
- * Error handler function, writes the message to Console output and returns exit code.
- *
- * Can be used to return or use inside exit($error($msg)).
- */
-$error = static function (string $message, int $code = Command::FAILURE) use ($output): int {
-    $output->writeln(sprintf('<error>%s</error>', $message));
-
-    return $code;
-};
-
-/**
- * Container definitions.
- *
- * @see \Di\ContainerBuilder
- * @see \DI\Container
- * @see \DI\create()
- * @see https://php-di.org/doc/php-definitions.html
- */
-$definitions = [
-    'app'      => create(Application::class),
-    'local'    => create(LocalWPService::class)->constructor('/Applications/Local.app', $output),
-    'commands' => [
-        'run',
-        'composer',
-        'use',
-    ],
-    'commands.run'      => create(RunCommand::class)->constructor(get('local')),
-    'commands.composer' => create(ComposerCommand::class)->constructor(get('local')),
-    'commands.use'      => create(UseCommand::class)->constructor(get('local')),
-];
-
 try {
-    /**
-     * Build Container.
-     *
-     * @see \DI\Container
-     * @see \Di\ContainerBuilder
-     */
-    $container = (new ContainerBuilder())
-        ->useAnnotations(false)
-        ->useAutowiring(false)
-        ->addDefinitions($definitions)
-        ->build();
-
-    /**
-     * Get Application.
-     *
-     * @var Application $app
-     */
-    $app      = $container->get('app');
-    $commands = [];
-
-    /**
-     * Register commands.
-     */
-    if ($container->has('commands')) {
-        foreach ($container->get('commands') as $key) {
-            $command = $container->get("commands.{$key}");
-
-            if (! is_subclass_of($command, Command::class)) {
-                exit($error("Invalid command: {$command}"));
-            }
-
-            $commands[] = $command;
-        }
-    }
-} catch (DependencyException|NotFoundException|\Exception $e) {
-    return $error($e->getMessage());
-}
-
-$app->addCommands($commands);
-
-/**
- * Finally, run Application.
- */
-try {
-    return $app->run(output: $output);
-} catch (\Exception $e) {
-    return $error($e->getMessage());
+    app()->run(output: output());
+} catch (NotFoundExceptionInterface|ContainerExceptionInterface|Exception $e) {
+    /** @noinspection PhpUnhandledExceptionInspection */
+    return fail($e->getMessage());
 }
