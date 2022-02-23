@@ -16,12 +16,11 @@ use function DI\get;
  *
  * @see \DI\Container
  * @see \Di\ContainerBuilder
- *
  * @see https://php-di.org/doc/php-definitions.html
  */
 return [
+    OutputInterface::class => create(ConsoleOutput::class),
     'local_default_path'   => '/Applications/Local.app',
     'app'                  => create(Application::class)->method('addCommands', get('commands')),
-    'local'                => create(LocalWPService::class)->constructor(get('local_default_path')),
-    OutputInterface::class => create(ConsoleOutput::class),
+    'local'                => create(LocalWPService::class)->constructor(get('local_default_path'), get(OutputInterface::class)),
 ];
