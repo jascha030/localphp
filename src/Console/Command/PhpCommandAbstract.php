@@ -25,7 +25,8 @@ abstract class PhpCommandAbstract extends Command
 
     final public function configure(): void
     {
-        $this->addArgument('subcommand', InputArgument::OPTIONAL, 'The php command to execute.')
+        $this->setDescription($this->getCommandDescription())
+            ->addArgument('subcommand', InputArgument::OPTIONAL, 'The php command to execute.')
             ->addOption('use', 'u', InputOption::VALUE_REQUIRED, 'The php version to use.')
             ->addOption('list', 'l', InputOption::VALUE_NONE, 'List available versions')
             ->addOption('silent', 's', InputOption::VALUE_NONE, 'Don\'t write command output to console.')
