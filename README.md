@@ -73,7 +73,7 @@ Run `composer [subcommand]` with a specified php binary.
 **Usage:**
 
 ```shell 
-composer [options] [--] [<subcommand>]
+localphp composer [options] [--] [<subcommand>]
 ```
 
 **Arguments:**
