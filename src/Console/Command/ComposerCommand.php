@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Jascha030\Localphp\Console\Command;
 
+use Exception;
 use Jascha030\Localphp\LocalWPService;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -15,6 +17,9 @@ final class ComposerCommand extends PhpCommandAbstract
         parent::__construct('composer', $localWPService);
     }
 
+    /**
+     * @throws Exception
+     */
     public function do(InputInterface $input, OutputInterface $output): int
     {
         $php = $this->validateOptions($input, $output);
@@ -23,11 +28,13 @@ final class ComposerCommand extends PhpCommandAbstract
             return $php;
         }
 
-        return $php(
-            "composer {$input->getArgument('subcommand')}",
-            $input->getOption('working-dir'),
-            $input->getOption('silent') ?? false
-        );
+        $subcommand = $input->getArgument('subcommand');
+        $cwd        = $input->getOption('working-dir');
+        $silent     = $input->getOption('silent') ?? false;
+
+        $output->write($php("composer {$subcommand}", $cwd, $silent));
+
+        return Command::SUCCESS;
     }
 
     public function getCommandDescription(): string
