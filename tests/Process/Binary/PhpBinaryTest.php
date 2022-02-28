@@ -35,7 +35,7 @@ class PhpBinaryTest extends TestCase
 
         $this->assertEquals(
             substr(Process::fromShellCommandline("{$phpBinary} -v")->mustRun()->getOutput(), 0, -1),
-            $binary('-v', silent: true)
+            $binary('-v')
         );
     }
 

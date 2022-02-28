@@ -9,7 +9,6 @@ use InvalidArgumentException;
 use Jascha030\Localphp\LocalWPService;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
  * @covers \Jascha030\Localphp\LocalWPService
@@ -20,7 +19,7 @@ final class LocalWPServiceTest extends TestCase
 {
     public function testConstruct(): LocalWPService
     {
-        $service = new LocalWPService('/Applications/Local.app', new ConsoleOutput());
+        $service = new LocalWPService('/Applications/Local.app');
 
         $this->assertInstanceOf(LocalWPService::class, $service);
 
@@ -34,11 +33,26 @@ final class LocalWPServiceTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
 
-        new LocalWPService('/Applications/this/path/is/invalid', new ConsoleOutput());
+        new LocalWPService('/Applications/this/path/is/invalid');
     }
 
     /**
      * @depends testConstruct
+     * @depends testGetPackages
+     *
+     * @throws Exception
+     */
+    public function testThrowsExceptionForMissingComposerPhar(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        new LocalWPService(__DIR__ . '/Fixtures/no-composer-app/Local.app');
+    }
+
+    /**
+     * @depends testConstruct
+     *
+     * @throws Exception
      */
     public function testGetPackages(LocalWPService $service): void
     {
@@ -48,6 +62,8 @@ final class LocalWPServiceTest extends TestCase
     /**
      * @depends testConstruct
      * @depends testGetPackages
+     *
+     * @throws Exception
      */
     public function testScanAndGetPackages(LocalWPService $service): void
     {
@@ -57,6 +73,8 @@ final class LocalWPServiceTest extends TestCase
     /**
      * @depends testConstruct
      * @depends testGetPackages
+     *
+     * @throws Exception
      */
     public function testGetAvailablePhpVersions(LocalWPService $service): void
     {
@@ -66,11 +84,12 @@ final class LocalWPServiceTest extends TestCase
     /**
      * @depends testConstruct
      * @depends testGetPackages
+     *
      * @throws Exception
      */
     public function testGetAvailablePhpVersionsWithoutFoundBinaryPath(): void
     {
-        $service = new LocalWPService(__DIR__ . '/Fixtures/no-binary-path-app/Local.app', new ConsoleOutput());
+        $service = new LocalWPService(__DIR__ . '/Fixtures/no-binary-path-app/Local.app');
 
         $this->assertEmpty($service->getAvailablePhpVersions());
     }
@@ -78,12 +97,13 @@ final class LocalWPServiceTest extends TestCase
     /**
      * @depends testConstruct
      * @depends testGetPackages
+     *
      * @throws Exception
      */
     public function testThrowsExceptionForMultipleBinaries(): void
     {
         $this->expectException(RuntimeException::class);
 
-        (new LocalWPService(__DIR__ . '/Fixtures/double-binary-app/Local.app', new ConsoleOutput()))->getAvailablePhpVersions();
+        (new LocalWPService(__DIR__ . '/Fixtures/double-binary-app/Local.app'))->getAvailablePhpVersions();
     }
 }
