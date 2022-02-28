@@ -4,8 +4,66 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8c9d8c3cd9216e44f3274669bcf9d7b",
+    "content-hash": "9367452d7c12f4da9c4f9f81ac1c8db9",
     "packages": [
+        {
+            "name": "jascha030/cli",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jascha030/cli.git",
+                "reference": "6fd0fb3a7802827c5725be72f7674fbdc4bfad00"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jascha030/cli/zipball/6fd0fb3a7802827c5725be72f7674fbdc4bfad00",
+                "reference": "6fd0fb3a7802827c5725be72f7674fbdc4bfad00",
+                "shasum": ""
+            },
+            "require": {
+                "symfony/console": "^6.0",
+                "symfony/process": "^6.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.6",
+                "phpunit/phpunit": "^9.5",
+                "roave/security-advisories": "dev-latest"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "includes/helpers.php"
+                ],
+                "psr-4": {
+                    "Jascha030\\CLI\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jascha030",
+                    "email": "contact@jaschavanaalst.nl"
+                }
+            ],
+            "description": "Service class for executing shell commands using symfony/process, heavily inspired by the CommandLine class in laravel/valet.",
+            "keywords": [
+                "cli",
+                "console",
+                "php",
+                "service",
+                "shell",
+                "symfony-console",
+                "symfony-process"
+            ],
+            "support": {
+                "issues": "https://github.com/jascha030/cli/issues",
+                "source": "https://github.com/jascha030/cli/tree/1.1.0"
+            },
+            "time": "2022-02-28T21:04:41+00:00"
+        },
         {
             "name": "opis/closure",
             "version": "3.6.3",
