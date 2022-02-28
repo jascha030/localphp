@@ -22,17 +22,12 @@ final class LocalWPService
 
     private ?array $phpVersions;
 
-    public function __construct(private string $applicationPath, private OutputInterface $output)
+    public function __construct(private string $applicationPath)
     {
         $this->resolveLightningServicesPath();
         $this->resolveComposerPath();
 
         $this->phpVersions = [];
-    }
-
-    public function setOutput(OutputInterface $output): void
-    {
-        $this->output = $output;
     }
 
     /**
@@ -51,7 +46,7 @@ final class LocalWPService
                     continue;
                 }
 
-                $binary = new PhpBinary($path, $this->output, $this->composerPath);
+                $binary = new PhpBinary($path, $this->composerPath);
 
                 if (! isset($this->phpVersions[$binary->getVersion()])) {
                     $this->phpVersions[$binary->getVersion()] = $binary;
@@ -92,8 +87,6 @@ final class LocalWPService
     private function resolveComposerPath(): void
     {
         $path = sprintf('%s/Contents/Resources/extraResources/bin/composer/composer.phar', $this->applicationPath);
-
-        var_dump($path);
 
         if (! file_exists($path)) {
             throw new InvalidArgumentException("Could not find the composer.phar at: \"{$this->applicationPath}\".");

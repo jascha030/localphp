@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jascha030\Localphp\Console\Command;
 
+use Exception;
 use Jascha030\Localphp\LocalWPService;
 use Jascha030\Localphp\Process\Binary\PhpBinary;
 use Symfony\Component\Console\Command\Command;
@@ -38,7 +39,7 @@ abstract class PhpCommandAbstract extends Command
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function validateOptions(InputInterface $input, OutputInterface $output): PhpBinary|int
     {
@@ -62,6 +63,9 @@ abstract class PhpCommandAbstract extends Command
         return $binaries[$version];
     }
 
+    /**
+     * @throws Exception
+     */
     final protected function list(OutputInterface $output): int
     {
         $versions = $this->localWPService->getAvailablePhpVersions();
@@ -78,6 +82,9 @@ abstract class PhpCommandAbstract extends Command
         return [];
     }
 
+    /**
+     * @throws Exception
+     */
     final public function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->getOption('list')) {
