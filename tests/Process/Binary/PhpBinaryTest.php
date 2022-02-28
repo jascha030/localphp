@@ -22,7 +22,7 @@ class PhpBinaryTest extends TestCase
 {
     public function testConstruct(): BinaryInterface
     {
-        $php = new PhpBinary($this->getPath(), new ConsoleOutput());
+        $php = new PhpBinary($this->getPath(), new ConsoleOutput(), dirname(__FILE__, 3) . '/Fixtures/composer/composer.phar');
 
         $this->assertInstanceOf(BinaryInterface::class, $php);
 

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Jascha030\Localphp\Tests;
 
+use Exception;
+use InvalidArgumentException;
 use Jascha030\Localphp\LocalWPService;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
@@ -29,7 +32,7 @@ final class LocalWPServiceTest extends TestCase
      */
     public function testThrowsExceptionOnInvalidPath(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         new LocalWPService('/Applications/this/path/is/invalid', new ConsoleOutput());
     }
@@ -63,6 +66,7 @@ final class LocalWPServiceTest extends TestCase
     /**
      * @depends testConstruct
      * @depends testGetPackages
+     * @throws Exception
      */
     public function testGetAvailablePhpVersionsWithoutFoundBinaryPath(): void
     {
@@ -74,10 +78,11 @@ final class LocalWPServiceTest extends TestCase
     /**
      * @depends testConstruct
      * @depends testGetPackages
+     * @throws Exception
      */
     public function testThrowsExceptionForMultipleBinaries(): void
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
 
         (new LocalWPService(__DIR__ . '/Fixtures/double-binary-app/Local.app', new ConsoleOutput()))->getAvailablePhpVersions();
     }
