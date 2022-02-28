@@ -8,7 +8,6 @@ use Exception;
 use Jascha030\CLI\Shell\Binary\BinaryInterface;
 use Jascha030\CLI\Shell\Binary\Traits\SelfResolvingVersionTrait;
 use Jascha030\CLI\Shell\Binary\Traits\ShellDecoratorTrait;
-use Jascha030\CLI\Shell\Shell;
 use Jascha030\CLI\Shell\ShellInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -61,7 +60,7 @@ final class PhpBinary implements BinaryInterface
     public function getShell(): ShellInterface
     {
         if (! isset($this->shell)) {
-            $this->shell = container()->get(Shell::class);
+            $this->shell = container()->get(ShellInterface::class);
         }
 
         return $this->shell;
