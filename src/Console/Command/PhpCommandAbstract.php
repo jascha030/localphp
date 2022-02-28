@@ -37,6 +37,9 @@ abstract class PhpCommandAbstract extends Command
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function validateOptions(InputInterface $input, OutputInterface $output): PhpBinary|int
     {
         $this->localWPService->setOutput($output);

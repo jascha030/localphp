@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jascha030\Localphp;
 
+use Exception;
 use InvalidArgumentException;
 use Jascha030\Localphp\Process\Binary\PhpBinary;
 use RuntimeException;
@@ -38,6 +39,7 @@ final class LocalWPService
      * @param bool $scan enable to re-scan package dir for changes between calls
      *
      * @throws RuntimeException
+     * @throws Exception
      */
     public function getAvailablePhpVersions(bool $scan = false): array
     {
@@ -62,6 +64,8 @@ final class LocalWPService
 
     /**
      * @param bool $scan enable to re-scan package dir for changes between calls
+     *
+     * @throws Exception
      */
     public function getPackages(bool $scan = false): array
     {
@@ -89,6 +93,8 @@ final class LocalWPService
     {
         $path = sprintf('%s/Contents/Resources/extraResources/bin/composer/composer.phar', $this->applicationPath);
 
+        var_dump($path);
+
         if (! file_exists($path)) {
             throw new InvalidArgumentException("Could not find the composer.phar at: \"{$this->applicationPath}\".");
         }
@@ -96,6 +102,9 @@ final class LocalWPService
         $this->composerPath = $path;
     }
 
+    /**
+     * @throws Exception
+     */
     private function fetchPackages(): self
     {
         if (! isset($this->packageDirectories)) {
@@ -120,10 +129,14 @@ final class LocalWPService
 
     /**
      * @throws RuntimeException
+     * @throws Exception
      */
     private function findBinary(string $path): ?string
     {
-        $finder = (new Finder())->in("{$path}/bin")->files()->name('php');
+        $finder = (new Finder())
+            ->in("{$path}/bin")
+            ->files()
+            ->name('php');
 
         if ($finder->count() > 1) {
             throw new RuntimeException('Multiple \'php\' binaries found');
