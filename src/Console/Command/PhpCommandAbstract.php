@@ -43,8 +43,6 @@ abstract class PhpCommandAbstract extends Command
      */
     protected function validateOptions(InputInterface $input, OutputInterface $output): PhpBinary|int
     {
-        $this->localWPService->setOutput($output);
-
         if (! $input->getOption('use')) {
             $output->writeln('<error>Provide a version using the --use flag.</error>');
 
